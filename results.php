@@ -1,5 +1,14 @@
 <?php
 
+require 'vendor/autoload.php';
+use Aws\DynamoDb\Enum\Type;
+
+use Aws\DynamoDb\DynamoDbClient;
+
+// Instantiate the client with your AWS access keys
+$aws = Aws\Common\Aws::factory('../config.php');
+$client = $aws->get('dynamodb');
+
 function get_song_id($q){
         $resp = file_get_contents("http://ws.spotify.com/search/1/track.json?q=$q");
         $resp = json_decode($resp);
@@ -9,6 +18,13 @@ function get_song_id($q){
 $q = $_GET['q'];
 
 $song_id = get_song_id(q);
+
+$item = $client->getItem(array(
+    'TableName' => 'songs',
+    'Key' => array( 'song_id' => $song_id ) 
+);
+
+var_dump($item);
 
 ?>
 <!DOCTYPE html>
