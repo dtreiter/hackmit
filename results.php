@@ -1,4 +1,16 @@
+<?php
 
+function get_song_id($q){
+        $resp = file_get_contents("http://ws.spotify.com/search/1/track.json?q=$q");
+        $resp = json_decode($resp);
+        return $resp->{'tracks'}[0]->{'href'};
+}
+
+$q = $_GET['q'];
+
+$song_id = get_song_id(q);
+
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -42,9 +54,9 @@
 
       <div class="page-header">
         <h1><a href="index.html"><img src="logo.png"></img></a>SongSource Results</h1>
-        <p id="user-content" class="lead">Media found using the song "</p>
-        <!-- <div id="songname"></div>
-        <div id="lyrics"></div> -->
+        <p id="user-content" class="lead">Media found using the song "<?= $q ?>"</p>
+        <div id="songname"><?= $song_id ?></div>
+        <div id="lyrics"></div>
       </div>
 
       <table class="table table-striped">
