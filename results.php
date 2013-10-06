@@ -2,27 +2,56 @@
 
 $DEBUG = false;
 
-require '../vendor/autoload.php';
+require_once 'simple_html_dom.php';
+require_once '../vendor/autoload.php';
 use Aws\DynamoDb\Enum\Type;
 use Aws\DynamoDb\DynamoDbClient;
+
+
+$lyrics = $_GET['lyrics'];
+$song_name = "";
+if($lyrics != "" and $lyrics != null){
+	$lyrics = implode("+", explode(" ", $lyrics));
+	$dom = file_get_html("http://www.lyricfind.com/services/lyrics-search/try-our-search/?q={$lyrics}");
+	// alternatively use str_get_html($html) if you have the html string already...
+	$counter = 0;
+	foreach ($dom->find("h2") as $node)
+	{
+		if($counter == 3) {
+			$song = $node->innertext;
+			break;
+		}
+		$counter++;
+	}
+	$song_name = $song;
+}
+//var_dump($song_name);
 
 // Instantiate the client with your AWS access keys
 $aws = Aws\Common\Aws::factory('../config.php');
 $client = $aws->get('dynamodb');
 
 function get_song_info($q){
+	$q = str_replace(" ", "+", $q);
 	$link = "http://ws.spotify.com/search/1/track.json?q=$q";
+	//var_dump($link);
 //	if(true){ var_dump($link); }
         $resp = file_get_contents($link);
+	//var_dump($resp);
         $resp = json_decode($resp);
 	
         return $resp->{'tracks'}[0];
 }
 
 $q = $_GET['q'];
-$esc_q = str_replace(" ", "+", $q);
 
-$song_info = get_song_info($esc_q);
+$song_info = null;
+if(false and $q == "" or $q == null){
+	$song_info = get_song_info($song_name);
+} else {
+	$song_info = get_song_info($q);
+}
+//var_dump($song_info);
 $song_id = $song_info->{"href"};
 $song_name = $song_info->{"name"};
 $album_name = $song_info->{"album"}->{"name"};
@@ -110,33 +139,13 @@ $movie_names = json_decode($movie_names);
 	?>
         <tr>
           <td><?= $m ?></td>
-          <td>Bob Joe</td>
-          <td>TV Show</td>
+          <td>James Cameron</td>
+          <td>Movie</td>
         </tr>
 	<?php
 	}
 	?>
       </table>
-
-  <!-- code to looking song up from lyrics below -->
-  <?
-    INCLUDE 'simple_html_dom.php';
-    $lyrics = $_GET['lyrics'];
-    $lyrics = implode("+", explode(" ", $lyrics));
-    $dom = file_get_html("http://www.lyricfind.com/services/lyrics-search/try-our-search/?q={$lyrics}");
-    // alternatively use str_get_html($html) if you have the html string already...
-    $counter = 0;
-    foreach ($dom->find("h2") as $node)
-    {
-        if($counter == 3) {
-          $song = $node->innertext;
-          break;
-        }
-        $counter++;
-    }
-    echo $song;
-
-  ?>
 
     </div> <!-- /container -->
 
