@@ -79,10 +79,10 @@ $movie_names = json_decode($movie_names);
   <body>
 
     <div class="container">
-    <form class="form-inline" role="form" action="results.html">
+    <form class="form-inline" role="form" action="results.php">
       <div class="form-group">
         <label class="sr-only" for="exampleInputEmail2">Email address</label>
-        <input type="text" class="form-control" name="songname" placeholder="Song name">
+        <input type="text" class="form-control" name="q" placeholder="Song name">
       </div>
       <div class="form-group">
         <label class="sr-only" for="exampleInputPassword2">Password</label>
