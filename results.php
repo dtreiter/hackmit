@@ -96,7 +96,7 @@ $movie_names = json_decode($movie_names);
         <h1><a href="index.html"><img src="logo.png"></img></a>SongSource Results</h1>
         <p id="user-content" class="lead">Media found using the song "<?= $q ?>"</p>
         <div id="songname"><a href="https://play.spotify.com/track/<?= $song_id ?>"><?= $song_name ?></a> from <?= $album_name ?></div>
-        <div id="lyrics"></div>
+        <!-- <div id="lyrics"></div> -->
       </div>
 
       <table class="table table-striped">
@@ -118,6 +118,26 @@ $movie_names = json_decode($movie_names);
 	?>
       </table>
 
+  <!-- code to looking song up from lyrics below -->
+  <?
+    INCLUDE 'simple_html_dom.php';
+    $lyrics = $_GET['lyrics'];
+    $lyrics = implode("+", explode(" ", $lyrics));
+    $dom = file_get_html("http://www.lyricfind.com/services/lyrics-search/try-our-search/?q={$lyrics}");
+    // alternatively use str_get_html($html) if you have the html string already...
+    $counter = 0;
+    foreach ($dom->find("h2") as $node)
+    {
+        if($counter == 3) {
+          $song = $node->innertext;
+          break;
+        }
+        $counter++;
+    }
+    echo $song;
+
+  ?>
+
     </div> <!-- /container -->
 
     <script type="text/javascript">
@@ -136,16 +156,14 @@ $movie_names = json_decode($movie_names);
       $(document).ready(function() {
         var theParams = getParams;
         if(theParams["songname"]) {
-          document.getElementById("user-content").innerHTML += theParams["songname"];
-          document.getElementById("user-content").innerHTML += "&quot"
+          document.getElementById("user-content").innerHTML += theParams["songname"] + "&quot";
         }
         if(theParams["lyrics"]) {
-          document.getElementById("user-content").innerHTML += " from lyrics ";
-          document.getElementById("user-content").innerHTML += theParams["lyrics"];
-          var arr = $($("h2")[3]).text().split("-");
-          var artist = arr[0];
-          var title = arr[1];
-          document.getElementById("user-content").innerHTML += " title: " + title + " artist: " + artist;
+          document.getElementById("user-content").innerHTML += " from lyrics " + theParams["lyrics"];
+          // var arr = $($("h2")[3]).text().split("-");
+          // var artist = arr[0];
+          // var title = arr[1];
+          // document.getElementById("user-content").innerHTML += " title: " + title + " artist: " + artist;
         }
         //$("#songname").html(theParams["songname"]);
         //$("#lyrics").html(theParams["lyrics"]);
