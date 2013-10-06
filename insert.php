@@ -1,24 +1,3 @@
-<?php
-
-//require_once 'AWSSDKforPHP/sdk.class.php'; 
-require 'vendor/autoload.php';
-use Aws\DynamoDb\Enum\Type;
-
-use Aws\DynamoDb\DynamoDbClient;
-// Instantiate the client with your AWS access keys
-$aws = Aws\Common\Aws::factory('../config.php');
-$client = $aws->get('dynamodb');
-
-//$dynamodb = new AmazonDynamoDB();
-//$dynamodb->set_hostname("https://dynamodb.us-west-2.amazonaws.com");
-
-//$put_response = $client->putItem(array( 
-//	'TableName' => 'songs',
-//	'Item' => array( 
-//		'song_id' => array(Type::NUMBER => 1) ,
-//		'movies' => array(Type::STRING => 'abc')
-//) )); 
-
 $client->putItem(array('TableName' => 'songs', 'Item' => array('song_id' => array(Type::STRING => 'spotify:track:7mJNJKQ1eZFKMmJoaqyw55') , 'movies' => array(Type::STRING => '['Avatar']') ) ));
 $client->putItem(array('TableName' => 'songs', 'Item' => array('song_id' => array(Type::STRING => 'spotify:track:2vbjVc5oV5BuJ01YdZlV27') , 'movies' => array(Type::STRING => '['The Matrix']') ) ));
 $client->putItem(array('TableName' => 'songs', 'Item' => array('song_id' => array(Type::STRING => 'spotify:track:1wdoaja3ueHHvzobn2jE2n') , 'movies' => array(Type::STRING => '['The Dark Knight']') ) ));
@@ -1398,5 +1377,3 @@ $client->putItem(array('TableName' => 'songs', 'Item' => array('song_id' => arra
 $client->putItem(array('TableName' => 'songs', 'Item' => array('song_id' => array(Type::STRING => 'spotify:track:5rKUCSjQi54CTpCqAFVATx') , 'movies' => array(Type::STRING => '['Oldboy']') ) ));
 $client->putItem(array('TableName' => 'songs', 'Item' => array('song_id' => array(Type::STRING => 'spotify:track:6L5N7JDKk0s5jKCHX6BHhH') , 'movies' => array(Type::STRING => '['Scott Pilgrim vs. the World']') ) ));
 $client->putItem(array('TableName' => 'songs', 'Item' => array('song_id' => array(Type::STRING => 'spotify:track:4X0Philtgw9DqO1kcWuNKu') , 'movies' => array(Type::STRING => '['Captain Phillips']') ) ));
-
-?>
