@@ -1,31 +1,55 @@
 <?php
 
-require 'vendor/autoload.php';
-use Aws\DynamoDb\Enum\Type;
+$DEBUG = false;
 
+require '../vendor/autoload.php';
+use Aws\DynamoDb\Enum\Type;
 use Aws\DynamoDb\DynamoDbClient;
 
 // Instantiate the client with your AWS access keys
 $aws = Aws\Common\Aws::factory('../config.php');
 $client = $aws->get('dynamodb');
 
-function get_song_id($q){
-        $resp = file_get_contents("http://ws.spotify.com/search/1/track.json?q=$q");
+function get_song_info($q){
+	$link = "http://ws.spotify.com/search/1/track.json?q=$q";
+//	if(true){ var_dump($link); }
+        $resp = file_get_contents($link);
         $resp = json_decode($resp);
-        return $resp->{'tracks'}[0]->{'href'};
+	
+        return $resp->{'tracks'}[0];
 }
 
 $q = $_GET['q'];
+$esc_q = str_replace(" ", "+", $q);
 
-$song_id = get_song_id(q);
+$song_info = get_song_info($esc_q);
+$song_id = $song_info->{"href"};
+$song_name = $song_info->{"name"};
+$album_name = $song_info->{"album"}->{"name"};
 
-$item = $client->getItem(array(
-    'TableName' => 'songs',
-    'Key' => array( 'song_id' => $song_id ) 
-);
+if($song_id != null) {
+	//var_dump($song_id);
 
-var_dump($item);
+	$item = $client->getItem(array(
+	    'TableName' => 'songs',
+	    'Key' => array( 
+		'song_id' => array( 
+			'S' => $song_id 
+		) 
+	    )
+	));
 
+} 
+if($DEBUG) { var_dump($song_id); }
+
+$movie_names = $item["Item"]["movies"]['S'];
+$movie_names = str_replace("'", '"', $movie_names);
+$movie_names = json_decode($movie_names);
+//print_r($movie_names);
+//$movie_names2 = array(1, 2);
+//$movie_names = eval($movie_names);
+
+//print_r($movie_names);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -39,8 +63,8 @@ var_dump($item);
     <title>SongSource Results</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
-    <script src="jquery.js"></script>
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" ></script>
 
     <!-- Custom styles for this template -->
     <link href="grid.css" rel="stylesheet">
@@ -71,7 +95,7 @@ var_dump($item);
       <div class="page-header">
         <h1><a href="index.html"><img src="logo.png"></img></a>SongSource Results</h1>
         <p id="user-content" class="lead">Media found using the song "<?= $q ?>"</p>
-        <div id="songname"><?= $song_id ?></div>
+        <div id="songname"><a href="https://play.spotify.com/track/<?= $song_id ?>"><?= $song_name ?></a> from <?= $album_name ?></div>
         <div id="lyrics"></div>
       </div>
 
@@ -81,16 +105,17 @@ var_dump($item);
           <td><h4>Director</h4></td>
           <td><h4>Media Type</h4></td>
         </tr>
+	<?php 
+	foreach($movie_names as $m){
+	?>
         <tr>
-          <td>Inception</td>
-          <td>Some Guy</td>
-          <td>Film</td>
-        </tr>
-        <tr>
-          <td>Some Show</td>
+          <td><?= $m ?></td>
           <td>Bob Joe</td>
           <td>TV Show</td>
         </tr>
+	<?php
+	}
+	?>
       </table>
 
     </div> <!-- /container -->
